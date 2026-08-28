@@ -13,7 +13,7 @@ The main addition is source navigation: cards created in Anki can link back to t
 - Anki cards can jump back to the exact Obsidian block via `obsidian://open` links.
 - Card IDs can be written as Obsidian block IDs, such as `^ID-1714433449297`.
 - Decks can follow Obsidian file paths with templates such as `{path}`.
-- `Scan Directory` prefixes are removed from generated path decks.
+- `Scan Directories` prefixes are removed from generated path decks.
 - Moving or renaming a Markdown file can move existing Anki cards to the new path deck.
 - Context can be prepended to fields with file and heading information.
 - Math and code formatting are handled in a safer order so `$` inside code is not treated as LaTeX.
@@ -49,10 +49,10 @@ Obsidian file: LinearAlgebra/matrix-derivatives.md
 Anki deck:     LinearAlgebra::matrix-derivatives
 ```
 
-If `Scan Directory` is set, that prefix is removed:
+If `Scan Directories` is set, matching prefixes are removed:
 
 ```text
-Scan Directory: anki
+Scan Directories: anki
 Deck:           {path}
 Obsidian file:  anki/LinearAlgebra/matrix-derivatives.md
 Anki deck:      LinearAlgebra::matrix-derivatives

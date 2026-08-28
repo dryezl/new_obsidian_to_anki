@@ -121,9 +121,19 @@ export class FileManager {
 
     getTemplatePath(file: TFile): string {
         let template_path = file.path.slice(0, -file.extension.length - 1).replace(/\\/g, "/")
-        const scan_directory = this.data.scan_directory.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "")
-        if (scan_directory && template_path.startsWith(scan_directory + "/")) {
-            template_path = template_path.slice(scan_directory.length + 1)
+        const scan_directories = (this.data.scan_directories ?? [])
+            .map(path => path.replace(/\\/g, "/").replace(/^\/+|\/+$/g, ""))
+            .filter(Boolean)
+            .sort((a, b) => b.length - a.length)
+        for (const scan_directory of scan_directories) {
+            if (template_path === scan_directory) {
+                template_path = ""
+                break
+            }
+            if (template_path.startsWith(scan_directory + "/")) {
+                template_path = template_path.slice(scan_directory.length + 1)
+                break
+            }
         }
         return template_path
     }

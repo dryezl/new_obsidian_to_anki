@@ -18,7 +18,7 @@ export interface PluginSettings {
 		"Frozen Fields Line": string
 	},
 	Defaults: {
-		"Scan Directory": string,
+		"Scan Directories": string[],
 		"Tag": string,
 		"Deck": string,
 		"Scheduling Interval": number
@@ -61,7 +61,7 @@ export interface FileData {
 
 export interface ParsedSettings extends FileData {
 	add_file_link: boolean
-	scan_directory: string
+	scan_directories: string[]
 	folder_decks: Record<string, string>
 	folder_tags: Record<string, string>
 	ignored_file_globs: string[]

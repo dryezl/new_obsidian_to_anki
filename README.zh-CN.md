@@ -13,7 +13,7 @@ better-obsidian-to-anki fork 自 [Obsidian_to_Anki](https://github.com/Pseudoniu
 - Anki 卡片可以通过 `obsidian://open` 链接跳回具体 Obsidian block。
 - 卡片 ID 可以写成 Obsidian block id，例如 `^ID-1714433449297`。
 - `Deck` 可以使用 `{path}` 等模板，让 Anki 牌组跟随 Obsidian 文件路径。
-- 设置了 `Scan Directory` 时，生成路径牌组会移除扫描目录前缀。
+- 设置了 `Scan Directories` 时，生成路径牌组会移除匹配到的扫描目录前缀。
 - 移动或重命名 Markdown 文件后，可以把已有 Anki 卡片移动到新的路径牌组。
 - context 可以放在字段开头，显示文件路径和标题层级。
 - 数学公式和代码块的格式化顺序更安全，代码里的 `$` 不会被误识别为 LaTeX。
@@ -49,10 +49,10 @@ Obsidian file: LinearAlgebra/matrix-derivatives.md
 Anki deck:     LinearAlgebra::matrix-derivatives
 ```
 
-如果设置了 `Scan Directory`，会移除这个前缀：
+如果设置了 `Scan Directories`，会移除匹配到的前缀：
 
 ```text
-Scan Directory: anki
+Scan Directories: anki
 Deck:           {path}
 Obsidian file:  anki/LinearAlgebra/matrix-derivatives.md
 Anki deck:      LinearAlgebra::matrix-derivatives

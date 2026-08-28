@@ -38,7 +38,13 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     //Just a simple transfer
     result.curly_cloze = settings.Defaults.CurlyCloze
     result.highlights_to_cloze = settings.Defaults["CurlyCloze - Highlights to Clozes"]
-    result.scan_directory = settings.Defaults["Scan Directory"]
+    const scanDirectories = settings.Defaults["Scan Directories"]
+    if (Array.isArray(scanDirectories)) {
+        result.scan_directories = scanDirectories
+    } else {
+        const legacyScanDirectory = (settings.Defaults as any)["Scan Directory"]
+        result.scan_directories = typeof legacyScanDirectory === "string" && legacyScanDirectory.trim() !== "" ? [legacyScanDirectory] : []
+    }
     result.add_file_link = settings.Defaults["Add File Link"]
     result.comment = settings.Defaults["ID Comments"]
     result.add_context = settings.Defaults["Add Context"]
