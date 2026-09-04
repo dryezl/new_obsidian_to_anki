@@ -14,7 +14,7 @@ const card_regexp: RegExp = /(?:\r\n|\r|\n)((?:\r\n|\r|\n)[Card])/g
 
 function id_to_str(identifier:number, inline:boolean = false, comment:boolean = false,blocklinkid:boolean): string {
     if(blocklinkid){
-        return "^ID-" + identifier.toString() + (inline ? " " : "\n")
+        return inline ? "^ID-" + identifier.toString() + " " : "\n^ID-" + identifier.toString()
     }
     let result = "ID: " + identifier.toString()
     if (comment) {
@@ -311,8 +311,10 @@ export class AllFile extends AbstractFile {
 
     scanNotes() {
         for (let note_match of this.file.matchAll(this.data.NOTE_REGEXP)) {
-            let [note, position]: [string, number] = [note_match[1], note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length]
-            // That second thing essentially gets the index of the end of the first capture group.
+            const noteContentEnd = note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length
+            const noteEnd = note_match.index + note_match[0].length
+            let [note, position]: [string, number] = [note_match[1], this.data.add_card_link ? noteEnd : noteContentEnd]
+            // Insert position is usually end of note content; block-link mode places IDs after END.
             let parsed = new Note(
                 note,
                 this.data.fields_dict,
