@@ -313,7 +313,9 @@ export class AllFile extends AbstractFile {
         for (let note_match of this.file.matchAll(this.data.NOTE_REGEXP)) {
             const noteContentEnd = note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length
             const noteEnd = note_match.index + note_match[0].length
-            let [note, position]: [string, number] = [note_match[1], this.data.add_card_link ? noteEnd : noteContentEnd]
+            const trailingBlockIdMatch = this.file.slice(noteEnd).match(/^(?:\r\n|\r|\n)\^ID-\d+(?:[^\r\n]*)/)
+            const noteWithTrailingId = trailingBlockIdMatch ? note_match[1] + trailingBlockIdMatch[0] : note_match[1]
+            let [note, position]: [string, number] = [noteWithTrailingId, this.data.add_card_link ? noteEnd : noteContentEnd]
             // Insert position is usually end of note content; block-link mode places IDs after END.
             let parsed = new Note(
                 note,

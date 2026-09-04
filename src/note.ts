@@ -43,7 +43,7 @@ abstract class AbstractNote {
     note_type: string
     field_names: string[]
     current_field: string
-    ID_REGEXP: RegExp = /(?:<!--)?ID: (\d+)/
+    ID_REGEXP: RegExp = /(?:<!--)?(?:\^?ID(?:\: |-))(\d+)/
     formatter: FormatConverter
     curly_cloze: boolean
 	highlights_to_cloze: boolean
@@ -179,7 +179,7 @@ export class Note extends AbstractNote {
 export class InlineNote extends AbstractNote {
 
     static TAG_REGEXP: RegExp = /Tags: (.*)/;
-    static ID_REGEXP: RegExp = /(?:<!--)?ID: (\d+)/;
+    static ID_REGEXP: RegExp = /(?:<!--)?(?:\^?ID(?:\: |-))(\d+)/;
     static TYPE_REGEXP: RegExp = /\[(.*?)\]/;
 
     getSplitText(): string[] {
