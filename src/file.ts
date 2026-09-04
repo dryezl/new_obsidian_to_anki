@@ -14,7 +14,7 @@ const card_regexp: RegExp = /(?:\r\n|\r|\n)((?:\r\n|\r|\n)[Card])/g
 
 function id_to_str(identifier:number, inline:boolean = false, comment:boolean = false,blocklinkid:boolean): string {
     if(blocklinkid){
-        return "^ID-"+identifier.toString()
+        return "^ID-" + identifier.toString() + (inline ? " " : "\n")
     }
     let result = "ID: " + identifier.toString()
     if (comment) {
