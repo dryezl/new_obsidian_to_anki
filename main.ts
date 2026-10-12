@@ -194,35 +194,40 @@ export default class MyPlugin extends Plugin {
 			new Notice("Error, couldn't connect to Anki! Check console for error message.")
 			return
 		}
-		new Notice("Successfully connected to Anki! This could take a few minutes - please don't close Anki until the plugin is finished")
-		const data: ParsedSettings = await settingToData(this.app, this.settings, this.fields_dict)
-		const scanDirs = this.settings.Defaults["Scan Directories"]
-		let manager = null;
-		if (scanDirs && scanDirs.length > 0) {
-			let markdownFiles = [];
-			for (const dirPath of scanDirs) {
-				const scanDir = this.app.vault.getAbstractFileByPath(dirPath)
-				if (scanDir instanceof TFolder) {
-					console.info("Using custom scan directory: " + scanDir.path)
-					markdownFiles.push(...this.getAllTFilesInFolder(scanDir))
-				} else {
-					new Notice("Error: incorrect path for scan directory " + dirPath)
+		try {
+			new Notice("Successfully connected to Anki! This could take a few minutes - please don't close Anki until the plugin is finished")
+			const data: ParsedSettings = await settingToData(this.app, this.settings, this.fields_dict)
+			const scanDirs = this.settings.Defaults["Scan Directories"]
+			let manager = null;
+			if (scanDirs && scanDirs.length > 0) {
+				let markdownFiles = [];
+				for (const dirPath of scanDirs) {
+					const scanDir = this.app.vault.getAbstractFileByPath(dirPath)
+					if (scanDir instanceof TFolder) {
+						console.info("Using custom scan directory: " + scanDir.path)
+						markdownFiles.push(...this.getAllTFilesInFolder(scanDir))
+					} else {
+						new Notice("Error: incorrect path for scan directory " + dirPath)
+					}
 				}
+				manager = new FileManager(this.app, data, markdownFiles, this.file_hashes, this.added_media)
+			} else {
+				manager = new FileManager(this.app, data, this.app.vault.getMarkdownFiles(), this.file_hashes, this.added_media);
 			}
-			manager = new FileManager(this.app, data, markdownFiles, this.file_hashes, this.added_media)
-		} else {
-			manager = new FileManager(this.app, data, this.app.vault.getMarkdownFiles(), this.file_hashes, this.added_media);
+			
+			await manager.initialiseFiles()
+			await manager.requests_1()
+			this.added_media = Array.from(manager.added_media_set)
+			const hashes = manager.getHashes()
+			for (let key in hashes) {
+				this.file_hashes[key] = hashes[key]
+			}
+			new Notice("All done! Saving file hashes and added media now...")
+			this.saveAllData()
+		} catch (e) {
+			console.error("Vault scan failed", e)
+			new Notice("Vault scan failed. See console for details.")
 		}
-		
-		await manager.initialiseFiles()
-		await manager.requests_1()
-		this.added_media = Array.from(manager.added_media_set)
-		const hashes = manager.getHashes()
-		for (let key in hashes) {
-			this.file_hashes[key] = hashes[key]
-		}
-		new Notice("All done! Saving file hashes and added media now...")
-		this.saveAllData()
 	}
 
 	async onload() {

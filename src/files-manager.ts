@@ -174,19 +174,24 @@ export class FileManager {
 
     async genAllFiles() {
         for (let file of this.files) {
-            const content: string = await this.app.vault.read(file)
-            const cache: CachedMetadata = this.app.metadataCache.getCache(file.path)
-            const file_data = this.dataToFileData(file)
-            this.ownFiles.push(
-                new AllFile(
-                    content,
-                    file.path,
-                    this.data.add_file_link ? (this.data.add_card_link ? this.getUrl(file).slice(0,-3)+"%23%5E" :this.getUrl(file)) : "",
-                    file_data,
-                    cache,
-                    this.data.add_card_link
+            try {
+                const content: string = await this.app.vault.read(file)
+                const cache: CachedMetadata = this.app.metadataCache.getCache(file.path)
+                const file_data = this.dataToFileData(file)
+                this.ownFiles.push(
+                    new AllFile(
+                        content,
+                        file.path,
+                        this.data.add_file_link ? (this.data.add_card_link ? this.getUrl(file).slice(0,-3)+"%23%5E" :this.getUrl(file)) : "",
+                        file_data,
+                        cache,
+                        this.data.add_card_link
+                    )
                 )
-            )
+            } catch (error) {
+                console.error("Failed to initialize file ", file.path, error)
+                new Notice("Failed to initialize " + file.path + ". See console for details.")
+            }
         }
     }
 
