@@ -6,6 +6,7 @@ import * as AnkiConnect from './anki'
 import { basename } from 'path'
 import multimatch from "multimatch"
 import { AnkiConnectNote } from './interfaces/note-interface'
+import { Md5 } from 'ts-md5/dist/md5'
 interface addNoteResponse {
     result: number,
     error: string | null
@@ -196,23 +197,34 @@ export class FileManager {
     }
 
     async initialiseFiles() {
-        await this.genAllFiles()
         let files_changed: Array<AllFile> = []
         let obfiles_changed: TFile[] = []
-        for (let index in this.ownFiles) {
-            const i = parseInt(index)
-            let file = this.ownFiles[i]
-            if (!(this.file_hashes.hasOwnProperty(file.path) && file.getHash() === this.file_hashes[file.path])) {
-                //Indicates it's changed or new
-                console.info("Scanning ", file.path, "as it's changed or new.")
-                try {
-                    file.scanFile()
-                    files_changed.push(file)
-                    obfiles_changed.push(this.files[i])
-                } catch (error) {
-                    console.error("Failed to scan file ", file.path, error)
-                    new Notice("Failed to scan " + file.path + ". See console for details.")
+        for (const obFile of this.files) {
+            try {
+                const content: string = await this.app.vault.read(obFile)
+                const hash: string = Md5.hashStr(content) as string
+                if (this.file_hashes.hasOwnProperty(obFile.path) && hash === this.file_hashes[obFile.path]) {
+                    continue
                 }
+
+                //Indicates it's changed or new
+                console.info("Scanning ", obFile.path, "as it's changed or new.")
+                const cache: CachedMetadata = this.app.metadataCache.getCache(obFile.path)
+                const file_data = this.dataToFileData(obFile)
+                const file = new AllFile(
+                    content,
+                    obFile.path,
+                    this.data.add_file_link ? (this.data.add_card_link ? this.getUrl(obFile).slice(0,-3)+"%23%5E" :this.getUrl(obFile)) : "",
+                    file_data,
+                    cache,
+                    this.data.add_card_link
+                )
+                file.scanFile()
+                files_changed.push(file)
+                obfiles_changed.push(obFile)
+            } catch (error) {
+                console.error("Failed to scan file ", obFile.path, error)
+                new Notice("Failed to scan " + obFile.path + ". See console for details.")
             }
         }
         this.ownFiles = files_changed
