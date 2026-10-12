@@ -209,7 +209,7 @@ export class FileManager {
 
                 //Indicates it's changed or new
                 console.info("Scanning ", obFile.path, "as it's changed or new.")
-                const cache: CachedMetadata = this.app.metadataCache.getCache(obFile.path)
+                const cache: CachedMetadata = this.app.metadataCache.getFileCache(obFile) ?? this.app.metadataCache.getCache(obFile.path)
                 const file_data = this.dataToFileData(obFile)
                 const file = new AllFile(
                     content,
@@ -271,20 +271,25 @@ export class FileManager {
             const mediaLinks = difference(file.formatter.detectedMedia, this.added_media_set)
             for (let mediaLink of mediaLinks) {
                 console.log("Adding media file: ", mediaLink)
-                const dataFile = this.app.metadataCache.getFirstLinkpathDest(mediaLink, file.path)
-                if (!(dataFile)) {
-                    console.warn("Couldn't locate media file ", mediaLink)
-                }
-                else {
-                    // Located successfully, so treat as if we've added the media
-                    this.added_media_set.add(mediaLink)
-                    const realPath = (this.app.vault.adapter as FileSystemAdapter).getFullPath(dataFile.path)
-                    temp.push(
-                        AnkiConnect.storeMediaFileByPath(
-                            basename(mediaLink),
-                            realPath
+                try {
+                    const dataFile = this.app.metadataCache.getFirstLinkpathDest(mediaLink, file.path)
+                    if (!(dataFile)) {
+                        console.warn("Couldn't locate media file ", mediaLink)
+                    }
+                    else {
+                        // Located successfully, so treat as if we've added the media
+                        this.added_media_set.add(mediaLink)
+                        const realPath = (this.app.vault.adapter as FileSystemAdapter).getFullPath(dataFile.path)
+                        temp.push(
+                            AnkiConnect.storeMediaFileByPath(
+                                basename(mediaLink),
+                                realPath
+                            )
                         )
-                    )
+                    }
+                } catch (error) {
+                    console.error("Failed to resolve media link ", mediaLink, " in ", file.path, error)
+                    new Notice("Failed to resolve media link " + mediaLink + " in " + file.path + ".")
                 }
             }
         }
